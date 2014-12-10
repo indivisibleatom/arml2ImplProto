@@ -1,0 +1,69 @@
+<html>
+
+<title>ARML Demo</title>
+
+<script type="text/javascript" src="Jsonix-all.js"></script>
+<script type="text/javascript" src="jquery-2.1.1.min.js"></script>
+<script type="text/javascript" src="armlJSONSchema.js"></script>
+<script type="text/javascript" src="three.js"></script>
+<script type="text/javascript" src="CSS3DRenderer.js"></script>
+<script type="text/javascript" src="armlPopulator.js"></script>
+<script type="text/javascript">
+
+//Simulation code for enabling testing of geo-located features
+var simulatedPosition = { lat: 37.818599, lon: -122.478511, heading: 0 };
+$(document).keypress(function( event ) {
+  switch( event.key ) 
+  {
+    case 'w': simulatedPosition.lon += 0.00001; 
+      updatePositionTrackerText();
+      break;
+    case 's': simulatedPosition.lon -= 0.00001; 
+      updatePositionTrackerText();
+      break;
+    case 'a': simulatedPosition.lat -= 0.00001; 
+      updatePositionTrackerText();
+      break;
+    case 'd': simulatedPosition.lat + 0.00001; 
+      updatePositionTrackerText();
+      break;
+    case 'j': simulatedPosition.heading -= 1; 
+      if ( simulatedPosition.heading < 0 ) { simulatedPosition.heading += 360; }
+      simulatedPosition.heading %= 360; 
+      updatePositionTrackerText();
+      break;
+    case 'l': simulatedPosition.heading += 1; simulatedPosition.heading %= 360;
+      updatePositionTrackerText();
+      break;
+    default:
+      break;
+  }
+} );
+
+function updatePositionTrackerText()
+{
+  var positionText = "<b>Current position:</b> Latitude: " + simulatedPosition.lat.toFixed(6) + "   Longitude: " + simulatedPosition.lon.toFixed(6) + "   Heading: "  + simulatedPosition.heading;
+  $("#positionTracker").html(positionText);
+  ARMLLoader.handleRecomposition( simulatedPosition );
+}
+
+//The code to actually create the ARML data-structures
+function onLoad()
+{
+  var context = new Jsonix.Context([armlJSONSchema]);
+  var unmarshaller = context.createUnmarshaller();
+  unmarshaller.unmarshalURL('sample.arml', function (armlJSONSchema) {
+    console.log(new ARMLLoader.processARMLType(armlJSONSchema));
+    updatePositionTrackerText();
+  } );
+}
+</script>
+
+<body bgColor="yellow" id="body" onload="onLoad()">
+
+<div id="positionTracker">
+</div>
+
+</body>
+
+</html>
