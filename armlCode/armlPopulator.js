@@ -193,8 +193,11 @@ var ARMLLoader = (function() {
           this.assets.forEach( function( asset ) {
             div.appendChild( asset.cssElement() );
           }, this );
-          
-          var trans = { position: -pointViewParams.distance };
+          var quaternion = new THREE.Quaternion(); 
+          quaternion.setFromAxisAngle( new THREE.Vector3( 0, 1, 0 ), pointViewParams.bearing/Math.PI );
+          quaternion.normalize();
+
+          var trans = { position: -pointViewParams.distance, rotation: quaternion };
           return { element: div, transformation: trans };
         }
       }
@@ -322,9 +325,9 @@ var ARMLLoader = (function() {
       var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
       var distance = 3958.76  * c;
         
-      if(Math.abs(bearing - currentUserPosition.heading) <= 30)
+      if(Math.abs(bearing - currentUserPosition.heading) <= 60)
       {
-        return { visible: true, bearing: Math.abs(bearing - currentUserPosition.heading), distance: distance };
+        return { visible: true, bearing: (bearing - currentUserPosition.heading), distance: distance };
       }
       return { visible: false };
     }
@@ -435,6 +438,7 @@ var ARMLLoader = (function() {
               {
                 var cssObject = new THREE.CSS3DObject( cssElement.element );
                 cssObject.position.z = cssElement.transformation.position;
+                cssObject.quaternion.copy( cssElement.transformation.rotation );
                 scene.add( cssObject );
                 sceneObjects.push( cssObject );
               }
