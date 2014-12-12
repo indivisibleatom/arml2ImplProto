@@ -24,7 +24,7 @@ $(document).keypress(function( event ) {
     case 'a': simulatedPosition.lat -= 0.1; 
       updatePositionTrackerText();
       break;
-    case 'd': simulatedPosition.lat + 0.1; 
+    case 'd': simulatedPosition.lat += 0.1; 
       updatePositionTrackerText();
       break;
     case 'j': simulatedPosition.heading -= 1; 
