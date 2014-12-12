@@ -11,20 +11,20 @@
 <script type="text/javascript">
 
 //Simulation code for enabling testing of geo-located features
-var simulatedPosition = { lat: 37.818599, lon: -122.478511, heading: 0 };
+var simulatedPosition = { lat: 37.818599, lon: -122.468511, heading: 0 };
 $(document).keypress(function( event ) {
   switch( event.key ) 
   {
-    case 'w': simulatedPosition.lon += 0.00001; 
+    case 'w': simulatedPosition.lon += 0.1; 
       updatePositionTrackerText();
       break;
-    case 's': simulatedPosition.lon -= 0.00001; 
+    case 's': simulatedPosition.lon -= 0.1; 
       updatePositionTrackerText();
       break;
-    case 'a': simulatedPosition.lat -= 0.00001; 
+    case 'a': simulatedPosition.lat -= 0.1; 
       updatePositionTrackerText();
       break;
-    case 'd': simulatedPosition.lat + 0.00001; 
+    case 'd': simulatedPosition.lat + 0.1; 
       updatePositionTrackerText();
       break;
     case 'j': simulatedPosition.heading -= 1; 

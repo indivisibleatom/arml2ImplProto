@@ -4,8 +4,9 @@ var ARMLLoader = (function() {
   var scene;
   var refElements = {};
   var arElements = [];
-
   var features = [];
+
+  var sceneObjects = [];
 
   var armlTypeRef;
   var currentUserPosition;
@@ -182,14 +183,20 @@ var ARMLLoader = (function() {
     
     //Rendering
     this.cssElement = function() {
-      if ( "point" in this && this.point.isInView() )
+      if ( "point" in this )
       {
-        var div = document.createElement( "div" );
-        div.style = this.style;
-        this.assets.forEach( function( asset ) {
-          div.appendChild( asset.cssElement() );
-        }, this );
-        return div;
+        var pointViewParams = this.point.viewParams();
+        if ( pointViewParams.visible )
+        {
+          var div = document.createElement( "div" );
+          div.style = this.style;
+          this.assets.forEach( function( asset ) {
+            div.appendChild( asset.cssElement() );
+          }, this );
+          
+          var trans = { position: -pointViewParams.distance };
+          return { element: div, transformation: trans };
+        }
       }
       return null;
     }
@@ -299,7 +306,7 @@ var ARMLLoader = (function() {
   {
     var pos = initSetRequired( "pos", pointType );
     this.point = pos.value;
-    this.isInView = function() {
+    this.viewParams = function() {
       var pinLat = this.point[0];
       var pinLng = this.point[1];
       var dLat = (currentUserPosition.lat-pinLat)* Math.PI / 180;
@@ -317,9 +324,9 @@ var ARMLLoader = (function() {
         
       if(Math.abs(bearing - currentUserPosition.heading) <= 30)
       {
-        return true;
+        return { visible: true, bearing: Math.abs(bearing - currentUserPosition.heading), distance: distance };
       }
-      return false;
+      return { visible: false };
     }
   }
   
@@ -407,8 +414,12 @@ var ARMLLoader = (function() {
         screenAnchorDiv.removeChild(screenAnchorDiv.firstChild);
       }
       scene = new THREE.Scene();
+      
+      sceneObjects.forEach( function( sceneObject ) {
+        sceneObject.parent.remove( sceneObject );
+      } );
+      sceneObjects = [];
 
-      document.getElementById("screenAnchorDiv")
       features.forEach( function( feature ) {
         if ( feature.enabled ) 
         {
@@ -422,7 +433,10 @@ var ARMLLoader = (function() {
               }
               else
               {
-                scene.add( new THREE.CSS3DObject( cssElement ) );
+                var cssObject = new THREE.CSS3DObject( cssElement.element );
+                cssObject.position.z = cssElement.transformation.position;
+                scene.add( cssObject );
+                sceneObjects.push( cssObject );
               }
             }
           } );
